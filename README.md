@@ -1,1 +1,1 @@
-# npm_rigid2
+# @Gandolphinnn/npm_rigid2

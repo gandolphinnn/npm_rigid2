@@ -4,17 +4,19 @@
 	"description": "High-level classes for 2d rigidbody",
 	"main": "index.js",
 	"scripts": {
-	  "test": "echo \"Error: no test specified\" && exit 1"
+		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"repository": {
-	  "type": "git",
-	  "url": "git+https://github.com/gandolphinnn/npm_rigid2.git"
+		"type": "git",
+		"url": "git+https://github.com/gandolphinnn/npm_rigid2.git"
 	},
 	"author": "Gandolphinnn",
 	"license": "ISC",
 	"bugs": {
-	  "url": "https://github.com/gandolphinnn/npm_rigid2/issues"
+		"url": "https://github.com/gandolphinnn/npm_rigid2/issues"
 	},
-	"homepage": "https://github.com/gandolphinnn/npm_rigid2#readme"
-  }
-  
+	"homepage": "https://github.com/gandolphinnn/npm_rigid2#readme",
+	"dependencies": {
+		"@gandolphinnn/graphics2": "^1.0.3"
+	}
+}
