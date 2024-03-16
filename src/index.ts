@@ -1,35 +1,28 @@
 import { Coord } from '@gandolphinnn/graphics2'
 
+export class RayCast {
+	
+}
 
-export class RigidRect{
-	constructor(coord, degr, width, length, color = 'black') {
-		this.coord = coord;
-		this.degr = degr;
-		this.width = (width == null || width < 0)? 0 : width;
-		this.length = (length == null || length < 0)? 0 : length;
-		this.diagonal = Math.sqrt(this.width**2 + this.length**2);
-		this.corners = new Array();
-		this.color = color;
-		this.calcCorners();
+export class RigidBody {
+	onMouseOver = () => {};
+	onMouseLeave = () => {};
+	onClick = () => {};
+	onCollisionEnter = () => {}; //todo callback must pass a rigidBody as an argument
+	onCollisionLeave = () => {}; //todo callback must pass a rigidBody as an argument
+	constructor(center: Coord) {
+
 	}
-	calcCorners() {
-		this.corners = new Array();
-		this.corners.push(new Coord(this.coord.x + mathF.cosD(this.degr)*(this.length/2) + mathF.cosD(this.degr+90)*(this.width/2),
-							this.coord.y - mathF.sinD(this.degr)*(this.length/2) - mathF.sinD(this.degr+90)*(this.width/2)));
-		if (this.width > 0) {
-			this.corners.push(new Coord(this.coord.x + mathF.cosD(this.degr)*(this.length/2) - mathF.cosD(this.degr+90)*(this.width/2),
-							this.coord.y - mathF.sinD(this.degr)*(this.length/2) + mathF.sinD(this.degr+90)*(this.width/2)));
-		}
-		if (this.length > 0) {
-			this.corners.push(new Coord(this.coord.x - mathF.cosD(this.degr)*(this.length/2) - mathF.cosD(this.degr+90)*(this.width/2),
-							this.coord.y + mathF.sinD(this.degr)*(this.length/2) + mathF.sinD(this.degr+90)*(this.width/2)));
-			if (this.width > 0) {
-				this.corners.push(new Coord(this.coord.x - mathF.cosD(this.degr)*(this.length/2) + mathF.cosD(this.degr+90)*(this.width/2),
-								this.coord.y + mathF.sinD(this.degr)*(this.length/2) - mathF.sinD(this.degr+90)*(this.width/2)));
-			}
-		}
+}
+
+export class RigidRect extends RigidBody {
+	points: Coord[];
+
+	constructor(center: Coord, ...points: Coord[]) {
+		super(center);
+		this.points = points;
 	}
-	collision(rBody) {
+	collision(rBody: RigidBody) {
 		if (mathF.parentClass(rBody) == 'RigidRect') {
 			let hitPoints = new Array(), line1, line2;
 			for (let i = 0; i < this.corners.length; i++) {
@@ -201,3 +194,22 @@ export const rigidF = {
 
 	} */
 }
+
+function pointInPoly(point: Coord, vs) {
+    // ray-casting algorithm based on
+    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+
+    var x = point.x, y = point.y;
+
+    var inside = false;
+    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+        var xi = vs[i][0], yi = vs[i][1];
+        var xj = vs[j][0], yj = vs[j][1];
+
+        var intersect = ((yi > y) != (yj > y))
+            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+    }
+
+    return inside;
+};
