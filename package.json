@@ -1,20 +1,28 @@
 {
-	"name": "rigid2",
+	"name": "@gandolphinnn/rigid2",
 	"version": "1.0.0",
-	"description": "High-level classes for 2d rigidbody",
-	"main": "index.js",
+	"description": "",
+	"main": "dist/index.js",
+	"types": "dist/index.d.ts",
+	"files": [
+		"dist"
+	],
 	"scripts": {
-	  "test": "echo \"Error: no test specified\" && exit 1"
+		"live": "concurrently \"tsc --watch\" \"parcel index.html --open\"",
+		"clean": "rmdir \".parcel-cache\" && del /Q /f \"dist\" && tsc && del /Q /f \"dist\\test*\"",
+		"publish": "npm run clean && npm publish"
 	},
 	"repository": {
-	  "type": "git",
-	  "url": "git+https://github.com/gandolphinnn/npm_rigid2.git"
+		"type": "git",
+		"url": "git+https://github.com/gandolphinnn/npm_rigid2.git"
 	},
 	"author": "Gandolphinnn",
 	"license": "ISC",
 	"bugs": {
-	  "url": "https://github.com/gandolphinnn/npm_rigid2/issues"
+		"url": "https://github.com/gandolphinnn/npm_rigid2/issues"
 	},
-	"homepage": "https://github.com/gandolphinnn/npm_rigid2#readme"
-  }
-  
+	"homepage": "https://github.com/gandolphinnn/npm_rigid2#readme",
+	"dependencies": {
+		"@gandolphinnn/inputs": "^1.0.0"
+	}
+}
