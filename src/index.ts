@@ -1,21 +1,35 @@
-import { Coord } from '@gandolphinnn/graphics2'
+import { Coord, Angle, Line } from '@gandolphinnn/graphics2'
+import { parentClass } from '@gandolphinnn/utils'
+
+export type CollisionEvent = (val: RigidBody) => void;
+
+
+export class RigidEvent {
+	onMouseOver = () => {};
+	onMouseLeave = () => {};
+	onClick = () => {};
+	onCollisionEnter: CollisionEvent = () => {};
+	onCollisionLeave: CollisionEvent = () => {};
+	constructor() {
+
+	}
+}
 
 export class RayCast {
 	
 }
 
-export class RigidBody {
-	onMouseOver = () => {};
-	onMouseLeave = () => {};
-	onClick = () => {};
-	onCollisionEnter = () => {}; //todo callback must pass a rigidBody as an argument
-	onCollisionLeave = () => {}; //todo callback must pass a rigidBody as an argument
+export abstract class RigidBody {
+	event = new RigidEvent();
+	transform = new Transform();
+
 	constructor(center: Coord) {
 
 	}
+	abstract collision(rBody: RigidBody): boolean;
 }
 
-export class RigidRect extends RigidBody {
+export class RigidPoly extends RigidBody {
 	points: Coord[];
 
 	constructor(center: Coord, ...points: Coord[]) {
@@ -23,10 +37,10 @@ export class RigidRect extends RigidBody {
 		this.points = points;
 	}
 	collision(rBody: RigidBody) {
-		if (mathF.parentClass(rBody) == 'RigidRect') {
+		/* if (parentClass(rBody).name == 'RigidRect') {
 			let hitPoints = new Array(), line1, line2;
-			for (let i = 0; i < this.corners.length; i++) {
-				line1 = new Line(this.corners[i], this.corners[(i+1) % this.corners.length]);
+			for (let i = 0; i < this.points.length; i++) {
+				line1 = new Line(this.points[i], this.points[(i+1) % this.points.length]);
 				for (let i = 0; i < rBody.corners.length; i++) {
 					line2 = new Line(rBody.corners[i], rBody.corners[(i+1) % rBody.corners.length]);
 					if(line1.hitL(line2)) {
@@ -38,33 +52,31 @@ export class RigidRect extends RigidBody {
 				return false;
 			return hitPoints;
 		}
-		else if(mathF.parentClass(rBody) == 'RigidCirc') {
+		else if(parentClass(rBody).name == 'RigidCirc') {
 			console.log('Work In Progress');
 			return false;
-		}
-	}
-	bounce(mirrorDegr) {
-		this.degr = mathF.formA(mirrorDegr*2-this.degr+180);
+		} */
+		return false;
 	}
 	showHitbox() {
-		let color = ctx.strokeStyle;
+		/* let color = ctx.strokeStyle;
 		ctx.strokeStyle = this.color;
-		for (let i = 0; i < this.corners.length; i++) {
-			drawF.line(this.corners[i], this.corners[(i+1)%this.corners.length]);
+		for (let i = 0; i < this.points.length; i++) {
+			drawF.line(this.points[i], this.points[(i+1)%this.points.length]);
 		}
 		drawF.circle(this.coord, 3);
-		ctx.strokeStyle = color;
+		ctx.strokeStyle = color; */
 	}
 }
-export class RigidCirc {
-	constructor(coord, degr, radius, color= 'black') {
-		this.coord = coord;
-		this.degr = degr;
+export class RigidCirc extends RigidBody {
+	radius: number;
+
+	constructor(center: Coord, radius: number) {
+		super(center);
 		this.radius = radius;
-		this.color = color
 	}
-	collision(rBody) {
-		if (mathF.parentClass(rBody) == 'RigidRect') {
+	collision(rBody: RigidBody) {
+		/* if (mathF.parentClass(rBody) == 'RigidRect') {
 			console.log('Work In Progress');
 			return false;
 		}
@@ -83,23 +95,18 @@ export class RigidCirc {
 				hitPoints.push(new Coord(l/d*(x2-x1) - h/d*(y2-y1) + x1, l/d*(y2-y1) + h/d*(x2-x1) + y1));
 			}
 			return hitPoints;
-		}
-	}
-	bounce(mirrorDegr) {
-		this.degr = mathF.formA(mirrorDegr*2-this.degr+180);
+		} */
+		return false;
 	}
 	showHitbox() {
-		let color = ctx.strokeStyle;
+		/* let color = ctx.strokeStyle;
 		ctx.strokeStyle = this.color;
 		drawF.circle(this.coord, this.radius, 'stroke');
 		drawF.circle(this.coord, 3);
-		ctx.strokeStyle = color;
+		ctx.strokeStyle = color; */
 	}
 }
 export const rigidF = {
-	bounce: (rBody, mirrorDegr) => {
-		rBody.degr = mathF.formA(mirrorDegr*2-rBody.degr+180);
-	},
 	/**
 	 * Convert from unix timestamp to time.
 	 * @param {RigirRect | RigidCirc} rBody1 The first rigidBody.
@@ -109,7 +116,7 @@ export const rigidF = {
 	 * * an array with the coordinates of the intersections
 	 * * an empty array if they are one inside the other without intersection 
 	 */
-	collision(rBody1, rBody2) {
+	/* collision(rBody1, rBody2) {
 		let hitPoints = new Array();
 		//* rect and rect
 		if (mathF.parentClass(rBody1) == 'RigidRect' && mathF.parentClass(rBody2) == 'RigidRect') {
@@ -165,8 +172,8 @@ export const rigidF = {
 			return hitPoints;
 		}
 		return hitPoints;
-	},
-	closestPointRectCirc: (rRect, rCirc) => {
+	}, */
+	/* closestPointRectCirc: (rRect, rCirc) => {
 		let corn = rRect.corners, a, b, c, p1, p2, p = rCirc.coord, hitP;
 		for (let i = 0; i < corn.length; i++) {
 			p1 = corn[i];
@@ -184,7 +191,7 @@ export const rigidF = {
 			hitPoints.push(hitP);
 		}
 		return hitPoints;
-	},
+	}, */
 	/* snap: (rBody, fixedBody) => {
 		if (rigidF.collision(rBody, fixedBody)) {
 
@@ -195,21 +202,21 @@ export const rigidF = {
 	} */
 }
 
-function pointInPoly(point: Coord, vs) {
-    // ray-casting algorithm based on
-    // http://www.ecse.rpi.edu/Homepages/wrf/Research/Short_Notes/pnpoly.html
+function pointInPoly(point: Coord, vs: unknown) {
+	/* // pointInPoly algorithm from
+	// https://observablehq.com/@tmcw/understanding-point-in-polygon
 
-    var x = point.x, y = point.y;
+	var x = point.x, y = point.y;
 
-    var inside = false;
-    for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
-        var xi = vs[i][0], yi = vs[i][1];
-        var xj = vs[j][0], yj = vs[j][1];
+	var inside = false;
+	for (var i = 0, j = vs.length - 1; i < vs.length; j = i++) {
+		var xi = vs[i][0], yi = vs[i][1];
+		var xj = vs[j][0], yj = vs[j][1];
 
-        var intersect = ((yi > y) != (yj > y))
-            && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
-        if (intersect) inside = !inside;
-    }
+		var intersect = ((yi > y) != (yj > y))
+			&& (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+		if (intersect) inside = !inside;
+	}
 
-    return inside;
+	return inside; */
 };
