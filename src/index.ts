@@ -1,17 +1,21 @@
-import { Coord, Angle, Line } from '@gandolphinnn/graphics2'
-import { Vector2, RigidEvent, CollisionEvent } from './attributes.js'
+import { Coord, Angle, Line, Component } from '@gandolphinnn/graphics2'
+import { Vector, RigidEvent, CollisionEvent, LayerMask } from './attributes.js'
 export * from './attributes.js'
 
 export class RayCast {
-	
+	layerMask: LayerMask
 }
 
-export abstract class RigidBody {
+export abstract class RigidBody implements Component {
 	event = new RigidEvent();
-	transform = Vector2.up();
+	vector = Vector.up();
 
-	constructor(center: Coord) {
-
+	constructor(vector: Vector) {
+		this.vector = vector;
+	}
+	start() {}
+	update() {
+		//this.event.activeEvents.forEach(); //todo implement
 	}
 	abstract collision(rBody: RigidBody): boolean;
 }
@@ -19,8 +23,8 @@ export abstract class RigidBody {
 export class RigidPoly extends RigidBody {
 	points: Coord[];
 
-	constructor(center: Coord, ...points: Coord[]) {
-		super(center);
+	constructor(vector: Vector, ...points: Coord[]) {
+		super(vector);
 		this.points = points;
 	}
 	collision(rBody: RigidBody) {
@@ -58,8 +62,8 @@ export class RigidPoly extends RigidBody {
 export class RigidCirc extends RigidBody {
 	radius: number;
 
-	constructor(center: Coord, radius: number) {
-		super(center);
+	constructor(vector: Vector, radius: number) {
+		super(vector);
 		this.radius = radius;
 	}
 	collision(rBody: RigidBody) {

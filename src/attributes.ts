@@ -4,14 +4,36 @@ import { RigidBody } from './index.js'
 const VECTOR2_ARROW_HEAD_LENGTH = 10;
 const VECTOR2_ARROW_HEAD_ANGLE = 30;
 
-export class Vector2 {
+export class LayerMask {
+	id: number;
+	name: string;
+	private constructor(id: number, name: string) {
+		this.id = id;
+		this.name = name;
+		LayerMask._layerMasks.push(this);
+	}
+
+	private static _layerMasks: LayerMask[] = [];
+	static get layerMasks() { return this._layerMasks }
+	static newLayerMasks(id: number, name: string) {
+		return new LayerMask(id, name);
+	}
+	static getByName(name: string) {
+		return this._layerMasks.find(l => l.name == name);
+	}
+	static getById(id: number) {
+		return this._layerMasks.find(l => l.id == id);
+	}
+}
+
+export class Vector {
 	coord: Coord;
 	angle: Angle;
 	strength: number;
-	get forward() { return new Vector2(this.coord, this.angle, this.strength) }
-	get backward() { return new Vector2(this.coord, new Angle(this.angle.degrees + 180), this.strength) }
-	get leftward() { return new Vector2(this.coord, new Angle(this.angle.degrees - 90), this.strength) }
-	get rightward() { return new Vector2(this.coord, new Angle(this.angle.degrees + 90), this.strength) }
+	get forward() { return new Vector(this.coord, this.angle, this.strength) }
+	get backward() { return new Vector(this.coord, new Angle(this.angle.degrees + 180), this.strength) }
+	get leftward() { return new Vector(this.coord, new Angle(this.angle.degrees - 90), this.strength) }
+	get rightward() { return new Vector(this.coord, new Angle(this.angle.degrees + 90), this.strength) }
 	get vectorCoord() {
 		return new Coord(
 			this.coord.x + this.angle.cos * this.strength,
@@ -22,6 +44,9 @@ export class Vector2 {
 		this.coord = coord;
 		this.angle = angle;
 		this.strength = strength;
+	}
+	move() {
+		this.coord = this.vectorCoord;
 	}
 	bounce(bounceAngle: Angle) {
 		this.angle.degrees = bounceAngle.degrees * 2 - this.angle.degrees + 180;
@@ -40,10 +65,10 @@ export class Vector2 {
 			vectorCoord.y + arrowHead2.sin * VECTOR2_ARROW_HEAD_LENGTH
 		)).render();
 	}
-	static up(coord = new Coord(0, 0), strength = 0) { return new Vector2(coord, new Angle(270), strength) }
-	static down(coord = new Coord(0, 0), strength = 0) { return new Vector2(coord, new Angle(90), strength) }
-	static left(coord = new Coord(0, 0), strength = 0) { return new Vector2(coord, new Angle(180), strength) }
-	static right(coord = new Coord(0, 0), strength = 0) { return new Vector2(coord, new Angle(0), strength) }
+	static up(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(270), strength) }
+	static down(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(90), strength) }
+	static left(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(180), strength) }
+	static right(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(0), strength) }
 }
 
 export type CollisionEvent = (val: RigidBody) => void;
@@ -53,6 +78,9 @@ export class RigidEvent {
 	onClick = () => {};
 	onCollisionEnter: CollisionEvent = () => {};
 	onCollisionLeave: CollisionEvent = () => {};
+	get activeEvents() {
+		return [1] //todo implement
+	}
 	constructor() {
 
 	}

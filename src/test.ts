@@ -1,4 +1,4 @@
-import { Vector2 } from './index.js';
+import { Vector } from './index.js';
 import { Coord, Angle, Line, Circle, MainCanvas, Color } from '@gandolphinnn/graphics2';
 import { Input } from '@gandolphinnn/inputs';
 import { clamp, overflow } from '@gandolphinnn/utils';
@@ -8,7 +8,7 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	MainCanvas.get.clean();
 	MainCanvas.get.drawSampleMetric(50);
 	requestAnimationFrame(animate);
-	new Vector2(c.center, angle, 10).render();
+	new Vector(c.center, angle, 10).render();
 	angle.degrees += .1;
 }
 const angle = new Angle(0);
