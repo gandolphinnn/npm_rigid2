@@ -1,19 +1,6 @@
 import { Coord, Angle, Line } from '@gandolphinnn/graphics2'
-import { parentClass } from '@gandolphinnn/utils'
-
-export type CollisionEvent = (val: RigidBody) => void;
-
-
-export class RigidEvent {
-	onMouseOver = () => {};
-	onMouseLeave = () => {};
-	onClick = () => {};
-	onCollisionEnter: CollisionEvent = () => {};
-	onCollisionLeave: CollisionEvent = () => {};
-	constructor() {
-
-	}
-}
+import { Vector2, RigidEvent, CollisionEvent } from './attributes.js'
+export * from './attributes.js'
 
 export class RayCast {
 	
@@ -21,7 +8,7 @@ export class RayCast {
 
 export abstract class RigidBody {
 	event = new RigidEvent();
-	transform = new Transform();
+	transform = Vector2.up();
 
 	constructor(center: Coord) {
 
