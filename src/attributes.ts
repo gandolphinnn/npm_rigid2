@@ -1,4 +1,4 @@
-import { Coord, Angle, Line } from '@gandolphinnn/graphics2'
+import { Coord, Angle, Line, Color } from '@gandolphinnn/graphics2'
 import { RigidBody } from './index.js'
 
 const VECTOR_ARROW_HEAD_LENGTH = 10;
@@ -56,19 +56,25 @@ export class Vector {
 	bounce(bounceAngle: Angle) {
 		this.angle.degrees = bounceAngle.degrees * 2 - this.angle.degrees + 180;
 	}
-	render() {
+	render(color = Color.default()) {
 		const vectorCoord = this.vectorCoord;
-		new Line(this.coord, vectorCoord).render();
-		let arrowHead1 = new Angle(this.angle.degrees +180 + VECTOR_ARROW_HEAD_ANGLE);
-		new Line(vectorCoord, new Coord(
-			vectorCoord.x + arrowHead1.cos * VECTOR_ARROW_HEAD_LENGTH,
-			vectorCoord.y + arrowHead1.sin * VECTOR_ARROW_HEAD_LENGTH
-		)).render();
-		let arrowHead2 = new Angle(this.angle.degrees + 180 - VECTOR_ARROW_HEAD_ANGLE);
-		new Line(vectorCoord, new Coord(
-			vectorCoord.x + arrowHead2.cos * VECTOR_ARROW_HEAD_LENGTH,
-			vectorCoord.y + arrowHead2.sin * VECTOR_ARROW_HEAD_LENGTH
-		)).render();
+		const arrowBody = new Line(this.coord, vectorCoord);
+		arrowBody.style.mergeStrokeStyle(color);
+		arrowBody.render();
+		let headAngle1 = new Angle(this.angle.degrees +180 + VECTOR_ARROW_HEAD_ANGLE);
+		const arrowHead1 = new Line(vectorCoord, new Coord(
+			vectorCoord.x + headAngle1.cos * VECTOR_ARROW_HEAD_LENGTH,
+			vectorCoord.y + headAngle1.sin * VECTOR_ARROW_HEAD_LENGTH
+		));
+		arrowHead1.style.mergeStrokeStyle(color);
+		arrowHead1.render();
+		let headAngle2 = new Angle(this.angle.degrees + 180 - VECTOR_ARROW_HEAD_ANGLE);
+		const arrowHead2 = new Line(vectorCoord, new Coord(
+			vectorCoord.x + headAngle2.cos * VECTOR_ARROW_HEAD_LENGTH,
+			vectorCoord.y + headAngle2.sin * VECTOR_ARROW_HEAD_LENGTH
+		));
+		arrowHead2.style.mergeStrokeStyle(color);
+		arrowHead2.render();
 	}
 	static up(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(270), strength) }
 	static down(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(90), strength) }

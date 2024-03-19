@@ -8,10 +8,11 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	MainCanvas.get.clean();
 	MainCanvas.get.drawSampleMetric(50);
 	requestAnimationFrame(animate);
-	vec.move();
-	vec.render();
-	angle.degrees += 1;
+	vec1.move();
+	vec2.move();
+	vec1.render(Color.byName('Red'));
+	vec2.render(Color.byName('Blue'));
 }
-const angle = new Angle(0);
-const vec = new Vector(c.center, angle, 1)
+const vec1 = Vector.right(new Coord(100, 100), 1);
+const vec2 = Vector.right(new Coord(100, 200), 1);
 animate(0);
