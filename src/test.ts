@@ -8,8 +8,10 @@ const animate: FrameRequestCallback = (timestamp: number) => {
 	MainCanvas.get.clean();
 	MainCanvas.get.drawSampleMetric(50);
 	requestAnimationFrame(animate);
-	new Vector(c.center, angle, 10).render();
-	angle.degrees += .1;
+	vec.move();
+	vec.render();
+	angle.degrees += 1;
 }
 const angle = new Angle(0);
+const vec = new Vector(c.center, angle, 1)
 animate(0);

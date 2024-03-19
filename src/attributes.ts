@@ -1,8 +1,12 @@
 import { Coord, Angle, Line } from '@gandolphinnn/graphics2'
 import { RigidBody } from './index.js'
 
-const VECTOR2_ARROW_HEAD_LENGTH = 10;
-const VECTOR2_ARROW_HEAD_ANGLE = 30;
+const VECTOR_ARROW_HEAD_LENGTH = 10;
+const VECTOR_ARROW_HEAD_ANGLE = 30;
+/**
+ * X VectorStrength = 1 Pixel
+ */
+const VECTOR_STRENGTH_PIXEL_RATIO = 10;
 
 export class LayerMask {
 	id: number;
@@ -35,9 +39,10 @@ export class Vector {
 	get leftward() { return new Vector(this.coord, new Angle(this.angle.degrees - 90), this.strength) }
 	get rightward() { return new Vector(this.coord, new Angle(this.angle.degrees + 90), this.strength) }
 	get vectorCoord() {
+		//TODO Multiply per frame time (deltaTime)
 		return new Coord(
-			this.coord.x + this.angle.cos * this.strength,
-			this.coord.y + this.angle.sin * this.strength
+			this.coord.x + this.angle.cos * this.strength / VECTOR_STRENGTH_PIXEL_RATIO,
+			this.coord.y + this.angle.sin * this.strength / VECTOR_STRENGTH_PIXEL_RATIO
 		)
 	}
 	constructor(coord: Coord, angle: Angle, strength = 0) {
@@ -54,15 +59,15 @@ export class Vector {
 	render() {
 		const vectorCoord = this.vectorCoord;
 		new Line(this.coord, vectorCoord).render();
-		let arrowHead1 = new Angle(this.angle.degrees +180 + VECTOR2_ARROW_HEAD_ANGLE);
+		let arrowHead1 = new Angle(this.angle.degrees +180 + VECTOR_ARROW_HEAD_ANGLE);
 		new Line(vectorCoord, new Coord(
-			vectorCoord.x + arrowHead1.cos * VECTOR2_ARROW_HEAD_LENGTH,
-			vectorCoord.y + arrowHead1.sin * VECTOR2_ARROW_HEAD_LENGTH
+			vectorCoord.x + arrowHead1.cos * VECTOR_ARROW_HEAD_LENGTH,
+			vectorCoord.y + arrowHead1.sin * VECTOR_ARROW_HEAD_LENGTH
 		)).render();
-		let arrowHead2 = new Angle(this.angle.degrees + 180 - VECTOR2_ARROW_HEAD_ANGLE);
+		let arrowHead2 = new Angle(this.angle.degrees + 180 - VECTOR_ARROW_HEAD_ANGLE);
 		new Line(vectorCoord, new Coord(
-			vectorCoord.x + arrowHead2.cos * VECTOR2_ARROW_HEAD_LENGTH,
-			vectorCoord.y + arrowHead2.sin * VECTOR2_ARROW_HEAD_LENGTH
+			vectorCoord.x + arrowHead2.cos * VECTOR_ARROW_HEAD_LENGTH,
+			vectorCoord.y + arrowHead2.sin * VECTOR_ARROW_HEAD_LENGTH
 		)).render();
 	}
 	static up(coord = new Coord(0, 0), strength = 0) { return new Vector(coord, new Angle(270), strength) }

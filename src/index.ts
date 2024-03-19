@@ -15,6 +15,7 @@ export abstract class RigidBody implements Component {
 	}
 	start() {}
 	update() {
+		//? In every frame, check every active event of the rigidBody
 		//this.event.activeEvents.forEach(); //todo implement
 	}
 	abstract collision(rBody: RigidBody): boolean;
