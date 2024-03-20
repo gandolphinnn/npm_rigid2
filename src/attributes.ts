@@ -1,5 +1,6 @@
 import { Coord, Angle, Line, Color } from '@gandolphinnn/graphics2'
 import { RigidBody } from './index.js'
+import { Time } from './time.js'
 
 const VECTOR_ARROW_HEAD_LENGTH = 10;
 const VECTOR_ARROW_HEAD_ANGLE = 30;
@@ -7,6 +8,7 @@ const VECTOR_ARROW_HEAD_ANGLE = 30;
  * X VectorStrength = 1 Pixel
  */
 const VECTOR_STRENGTH_PIXEL_RATIO = 10;
+const DELTATIME_MULTIPLIER = 100;
 
 export class LayerMask {
 	id: number;
@@ -39,10 +41,9 @@ export class Vector {
 	get leftward() { return new Vector(this.coord, new Angle(this.angle.degrees - 90), this.strength) }
 	get rightward() { return new Vector(this.coord, new Angle(this.angle.degrees + 90), this.strength) }
 	get vectorCoord() {
-		//TODO Multiply per frame time (deltaTime)
 		return new Coord(
-			this.coord.x + this.angle.cos * this.strength / VECTOR_STRENGTH_PIXEL_RATIO,
-			this.coord.y + this.angle.sin * this.strength / VECTOR_STRENGTH_PIXEL_RATIO
+			this.coord.x + this.angle.cos * (this.strength / VECTOR_STRENGTH_PIXEL_RATIO) * (Time.deltaTime * DELTATIME_MULTIPLIER),
+			this.coord.y + this.angle.sin * (this.strength / VECTOR_STRENGTH_PIXEL_RATIO) * (Time.deltaTime * DELTATIME_MULTIPLIER)
 		)
 	}
 	constructor(coord: Coord, angle: Angle, strength = 0) {

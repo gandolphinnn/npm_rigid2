@@ -1,6 +1,7 @@
 import { Coord, Angle, Line, Component } from '@gandolphinnn/graphics2'
 import { Vector, RigidEvent, CollisionEvent, LayerMask } from './attributes.js'
 export * from './attributes.js'
+export * from './time.js'
 
 export class RayCast {
 	layerMask: LayerMask
