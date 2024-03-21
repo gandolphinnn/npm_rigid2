@@ -3,11 +3,12 @@ import { MainCanvas, Coord, Text } from "@gandolphinnn/graphics2";
 export class Time {
 	/**
 	 * The time difference between the current frame and the previous frame.
+	 * Multiply to this to get consistent results across different frame rates.
 	 */
 	static deltaTime: number = 0;
 
 	/**
-	 * The time scale factor.
+	 * The time scale factor. Modify this to slow down or speed up time.
 	 */
 	static timeScale: number = 1;
 
@@ -19,7 +20,7 @@ export class Time {
 	/**
 	 * The timestamp of the current frame.
 	 */
-	static frameTime: number = 0;
+	static currFrameTime: number = 0;
 
 	/**
 	 * The total number of frames rendered.
@@ -60,28 +61,32 @@ export class Time {
 	 * Updates the time-related properties.
 	 */
 	static update(timestamp: DOMHighResTimeStamp) {
-		this.frameTime = timestamp;
-		this.deltaTime = (this.frameTime - this.lastFrameTime) / 1000;
+		this.currFrameTime = timestamp;
+		this.deltaTime = (this.currFrameTime - this.lastFrameTime) / 1000;
 		this.deltaTime *= this.timeScale;
-		this.lastFrameTime = this.frameTime;
+		this.lastFrameTime = this.currFrameTime;
 		this.frameCount++;
 		this.fpsCount++;
-		this.fpsInterval = this.frameTime - this.fpsTime;
+		this.fpsInterval = this.currFrameTime - this.fpsTime;
 		//? Update the FPS value if the time interval is greater than the update interval
 		if (this.fpsInterval > this.fpsUpdateInterval) {
 			this.fps = Math.round(this.fpsCount / (this.fpsInterval / 1000));
-			
-			this.fpsTime = this.frameTime;
+			this.fpsTime = this.currFrameTime;
 			this.fpsCount = 0;
 			this.fpsUpdateCount++;
 		}
 	}
 	static logData() {
-		console.log(`Time {\n\tdeltaTime: ${this.deltaTime},\n\ttimeScale: ${this.timeScale},\n\tlastFrameTime: ${this.lastFrameTime},\n\tframeTime: ${this.frameTime},\n\tframeCount: ${this.frameCount},\n\tfps: ${this.fps},\n\tfpsInterval: ${this.fpsInterval},\n\tfpsTime: ${this.fpsTime},\n\tfpsCount: ${this.fpsCount},\n\tfpsUpdateInterval: ${this.fpsUpdateInterval},\n\tfpsUpdateCount: ${this.fpsUpdateCount}\n}`)
+		console.log(`Time {\n\tdeltaTime: ${this.deltaTime},\n\ttimeScale: ${this.timeScale},\n\tlastFrameTime: ${this.lastFrameTime},\n\tframeTime: ${this.currFrameTime},\n\tframeCount: ${this.frameCount},\n\tfps: ${this.fps},\n\tfpsInterval: ${this.fpsInterval},\n\tfpsTime: ${this.fpsTime},\n\tfpsCount: ${this.fpsCount},\n\tfpsUpdateInterval: ${this.fpsUpdateInterval},\n\tfpsUpdateCount: ${this.fpsUpdateCount}\n}`)
 	}
 	static showData() {
-		const t = new Text(new Coord(50, 30), `FPS: ${this.fps}`)
-		t.style.mergeTextAlign('left');
-		t.render();
+		const t = new Text(new Coord(25, 10), '');
+		t.style.mergeTextAlign('left').mergeFont('12px Arial');
+		for (const prop in this) {
+			// @ts-ignore
+			t.content = `${prop}: ${parseFloat(this[prop].toFixed(4))}`;
+			t.moveBy(0, 15);
+			t.render();
+		}
 	}
 }

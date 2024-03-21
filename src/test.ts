@@ -4,22 +4,22 @@ import { Coord, Angle, Line, Circle, MainCanvas, Color, Text } from '@gandolphin
 import { BtnState, Input } from '@gandolphinnn/inputs';
 
 const c = MainCanvas.get;
-Time.timeScale = .5;
 const animate: FrameRequestCallback = async (timestamp: DOMHighResTimeStamp) => {
 	Time.update(timestamp);
-	Time.logData();
 	MainCanvas.get.clean();
 	MainCanvas.get.drawSampleMetric(50);
 	Time.showData();
-	if (Input.btnState(0) == BtnState.Down) { //* Fake lagging
-		await new Promise(r => setTimeout(r, 10000));
-	}
+
 	vec1.move();
-	vec2.move();
+
+	if (vec1.coord.x > c.cnv.width || vec1.coord.x < 0) {
+		vec1.bounce(new Angle(0));
+	}
+	if (vec1.coord.y > c.cnv.height || vec1.coord.y < 0) {
+		vec1.bounce(new Angle(90));
+	}
 	vec1.render(Color.byName('Red'));
-	vec2.render(Color.byName('Blue'));
 	requestAnimationFrame(animate);
 }
-const vec1 = Vector.right(new Coord(150, 100), 1);
-const vec2 = Vector.right(new Coord(150, 200), 1);
+const vec1 = new Vector(new Coord(150, 100), new Angle(45), 50);
 animate(0);

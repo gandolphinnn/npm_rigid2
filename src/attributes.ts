@@ -55,7 +55,7 @@ export class Vector {
 		this.coord = this.vectorCoord;
 	}
 	bounce(bounceAngle: Angle) {
-		this.angle.degrees = bounceAngle.degrees * 2 - this.angle.degrees + 180;
+		this.angle.degrees = bounceAngle.degrees * 2 - (this.angle.degrees + 180); //todo attention needed
 	}
 	render(color = Color.default()) {
 		const vectorCoord = this.vectorCoord;
