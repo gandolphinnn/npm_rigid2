@@ -4,17 +4,17 @@ import { BtnState, Input } from '@gandolphinnn/inputs';
 
 const animate: FrameRequestCallback = async (timestamp: DOMHighResTimeStamp) => {
 	Time.update(timestamp);
-	MainCanvas.clean();
-	MainCanvas.drawSampleMetric(50);
-	Time.showData();
+	//MainCanvas.clean();
+	//MainCanvas.drawSampleMetric(50);
+	//Time.showData();
 
-	vec1.move();
+	vec1.advance();
 
-	if (vec1.coord.x > MainCanvas.cnv.width || vec1.coord.x < 0) {
-		vec1.bounce(new Angle(0));
-	}
-	if (vec1.coord.y > MainCanvas.cnv.height || vec1.coord.y < 0) {
+	if (vec1.vectorCoord.x > MainCanvas.cnv.width || vec1.vectorCoord.x < 0) {
 		vec1.bounce(new Angle(90));
+	}
+	if (vec1.vectorCoord.y > MainCanvas.cnv.height || vec1.vectorCoord.y < 0) {
+		vec1.bounce(new Angle(10 ));
 	}
 	vec1.render(Color.byName('Red'));
 	requestAnimationFrame(animate);

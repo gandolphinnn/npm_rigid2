@@ -1,24 +1,75 @@
 import { Coord, Angle, Line, Component } from '@gandolphinnn/graphics2'
-import { Vector, RigidEvent, CollisionEvent, LayerMask } from './attributes.js'
+import { Vector, CollisionEvent, LayerMask, MouseCollisionEvent } from './attributes.js'
 export * from './attributes.js'
 
 export class RayCast {
 	layerMask: LayerMask
 }
 
+export enum RigidBodyEvent {
+	MOUSE_ENTER = 'mouseEnter',
+	MOUSE_LEAVE = 'mouseLeave',
+	CLICK = 'click',
+	COLLISION_ENTER = 'collisionEnter',
+	COLLISION_LEAVE = 'collisionLeave',
+}
+
 export abstract class RigidBody implements Component {
-	event = new RigidEvent();
 	vector = Vector.up();
+	layerMasks: LayerMask[];
+	abstract onMouseEnter: MouseCollisionEvent;
+	abstract onMouseLeave: MouseCollisionEvent;
+	abstract onClick: MouseCollisionEvent;
+	abstract onCollisionEnter: CollisionEvent;
+	abstract onCollisionLeave: CollisionEvent;
+	activeEvents: { eventType: RigidBodyEvent, rigidBody?: RigidBody }[] = [];
 
 	constructor(vector: Vector) {
 		this.vector = vector;
+		RigidBody._rigidBodies.push(this);
 	}
+
+	private static _rigidBodies: RigidBody[] = [];
+
+	static get rigidBodies() { return Object.freeze(this._rigidBodies) }
+
 	start() {}
 	update() {
 		//? In every frame, check every active event of the rigidBody
 		//this.event.activeEvents.forEach(); //todo implement
 	}
-	abstract collision(rBody: RigidBody): boolean;
+	abstract detectCollision(rBody: RigidBody): boolean;
+
+	static getByLayerMask(layerMask: LayerMask) {
+		return this.rigidBodies.filter(rBody => rBody.layerMasks.includes(layerMask));
+	}
+
+	static checkCollisions() {
+		LayerMask.layerMasks.forEach(layerMask => {
+			const bodies = this.getByLayerMask(layerMask);
+			for (let i = 0; i < bodies.length - 1; i++) {
+				for (let j = i + 1; j < bodies.length; j++) {
+					const bodyA = bodies[i];
+					const bodyB = bodies[j];
+					const bodyAActiveEventIndex = bodyA.activeEvents.findIndex(e => e.eventType == RigidBodyEvent.COLLISION_ENTER && e.rigidBody == bodyB);
+					const bodyBActiveEventIndex = bodyB.activeEvents.findIndex(e => e.eventType == RigidBodyEvent.COLLISION_ENTER && e.rigidBody == bodyA);
+					const isColliding = bodyA.detectCollision(bodyB);
+					if (bodyAActiveEventIndex == -1 && bodyBActiveEventIndex == -1 && isColliding) {
+						bodyA.activeEvents.push({ eventType: RigidBodyEvent.COLLISION_ENTER, rigidBody: bodyB });
+						bodyB.activeEvents.push({ eventType: RigidBodyEvent.COLLISION_ENTER, rigidBody: bodyA });
+						bodyA.onCollisionEnter(bodyB);
+						bodyB.onCollisionEnter(bodyA);
+					}
+					if (bodyAActiveEventIndex != -1 && bodyBActiveEventIndex != -1 && !isColliding) {
+						bodyA.activeEvents.splice(bodyAActiveEventIndex, 1);
+						bodyB.activeEvents.splice(bodyBActiveEventIndex, 1);
+						bodyA.onCollisionLeave(bodyB);
+						bodyB.onCollisionLeave(bodyA);
+					}
+				}
+			}
+		});
+	}
 }
 
 export class RigidPoly extends RigidBody {
@@ -28,7 +79,7 @@ export class RigidPoly extends RigidBody {
 		super(vector);
 		this.points = points;
 	}
-	collision(rBody: RigidBody) {
+	detectCollision(rBody: RigidBody) {
 		/* if (parentClass(rBody).name == 'RigidRect') {
 			let hitPoints = new Array(), line1, line2;
 			for (let i = 0; i < this.points.length; i++) {
@@ -67,7 +118,7 @@ export class RigidCirc extends RigidBody {
 		super(vector);
 		this.radius = radius;
 	}
-	collision(rBody: RigidBody) {
+	detectCollision(rBody: RigidBody) {
 		/* if (mathF.parentClass(rBody) == 'RigidRect') {
 			console.log('Work In Progress');
 			return false;
