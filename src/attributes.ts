@@ -1,6 +1,5 @@
-import { Coord, Angle, Line, Color } from '@gandolphinnn/graphics2'
+import { Coord, Angle, Line, Color, Time } from '@gandolphinnn/graphics2'
 import { RigidBody } from './index.js'
-import { Time } from './time.js'
 
 const VECTOR_ARROW_HEAD_LENGTH = 10;
 const VECTOR_ARROW_HEAD_ANGLE = 30;
