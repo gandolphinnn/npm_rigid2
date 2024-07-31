@@ -1,6 +1,5 @@
 import { Coord, Angle, Line, Color, Time } from '@gandolphinnn/graphics2'
 import { RigidBody } from './index.js'
-import { Input } from '@gandolphinnn/inputs';
 
 export const VECTOR_ARROW_HEAD_LENGTH = 10;
 export const VECTOR_ARROW_HEAD_ANGLE = 30;
@@ -11,27 +10,30 @@ export const VECTOR_STRENGTH_PIXEL_RATIO = 10;
 export const DELTATIME_MULTIPLIER = 100;
 
 export class LayerMask {
-	name: string;
-	
-	constructor(name: string) {
-		this.name = name;
-		LayerMask._layerMasks.push(this);
+	constructor(
+		public name: string
+	) {
+		if (!LayerMask.getByName(name))
+			LayerMask._layerMasks.push(this);
 	}
 
-	private static _layerMasks: LayerMask[] = [];
+	private static _layerMasks: LayerMask[] = [
+		new LayerMask("Default"),
+		new LayerMask("Mouse"),
+		new LayerMask("Canvas"),
+	];
 
 	static get layerMasks() { return Object.freeze(this._layerMasks) }
 
 	static getByName(name: string) {
 		return this._layerMasks.find(l => l.name == name);
 	}
+	static get default() { return this.getByName("Default") }
+	static get mouse() { return this.getByName("Mouse") }
+	static get canvas() { return this.getByName("Canvas") }
 }
 
 export class Vector {
-	coord: Coord;
-	angle: Angle;
-	strength: number;
-
 	get forward() { return new Vector(this.coord, this.angle, this.strength) }
 	get backward() { return new Vector(this.coord, new Angle(this.angle.degrees + 180), this.strength) }
 	get leftward() { return new Vector(this.coord, new Angle(this.angle.degrees - 90), this.strength) }
@@ -47,7 +49,11 @@ export class Vector {
 		)
 	}
 	
-	constructor(coord: Coord, angle: Angle, strength = 0) {
+	constructor(
+		public coord: Coord,
+		public angle: Angle,
+		public strength = 0
+	) {
 		this.coord = coord;
 		this.angle = angle;
 		this.strength = strength;
