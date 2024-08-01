@@ -13,9 +13,17 @@ export function RayCast (
 		origin.x + direction.cos * maxDistance,
 		origin.y + direction.sin * maxDistance
 	)], layerMask);
-	const lines = RigidBody.getByLayerMask(layerMask);
-	const hits = RigidBody.rigidBodies.filter(rBody => rBody.layerMask.includes(layerMask) && rBody.detectCollision(ray));
-	return hits;
+	const bodies = RigidBody.getByLayerMask(layerMask);
+	const distances: { rigidBody: RigidBody, point: Coord, distance: number}[] = [];
+	for (const body of bodies) {
+		const hit = ray.checkCollision(body);
+		if (!hit) continue;
+		distances.push({ rigidBody: body, point: hit, distance: Coord.distance(origin, hit)});
+	}
+
+	if (distances.length == 0) return null;
+
+	return distances.sort((a, b) => a.distance - b.distance)[0];
 }
 
 export enum RigidBodyEvent {
@@ -36,10 +44,10 @@ export class RigidLine {
 		switch (className(rigidBody)) {
 			case 'RigidLine': {
 				// https://en.wikipedia.org/wiki/Line%E2%80%93line_intersection
-				
+				const rigidLine = rigidBody as unknown as RigidLine;
 				let hitPoint: Coord = null;
-				let x1 = this.points[0].x, x2 = this.points[1].x, x3 = rigidBody.points[0].x, x4 = rigidBody.points[1].x;
-				let y1 = this.points[0].y, y2 = this.points[1].y, y3 = rigidBody.points[0].y, y4 = rigidBody.points[1].y;
+				let x1 = this.points[0].x, x2 = this.points[1].x, x3 = rigidLine.points[0].x, x4 = rigidLine.points[1].x;
+				let y1 = this.points[0].y, y2 = this.points[1].y, y3 = rigidLine.points[0].y, y4 = rigidLine.points[1].y;
 				let denom = (x1-x2)*(y3-y4) - (x3-x4)*(y1-y2);
 				let t = ((x1-x3)*(y3-y4) - (x3-x4)*(y1-y3)) / denom;
 				let u = ((x1-x3)*(y1-y2) - (x1-x2)*(y1-y3)) / denom;
@@ -51,12 +59,13 @@ export class RigidLine {
 			case 'RigidPoly': {
 				// https://stackoverflow.com/questions/217578/how-can-i-determine-whether-a-2d-point-is-within-a-polygon
 				//? copilot code vvv, not even read
+				const rigidPoly = rigidBody as unknown as RigidLine;
 				let hitPoint: Coord = null;
-				let x = rigidBody.points[0].x, y = rigidBody.points[0].y;
+				let x = rigidPoly.points[0].x, y = rigidPoly.points[0].y;
 				let inside = false;
-				for (let i = 0, j = rigidBody.points.length - 1; i < rigidBody.points.length; j = i++) {
-					let xi = rigidBody.points[i].x, yi = rigidBody.points[i].y;
-					let xj = rigidBody.points[j].x, yj = rigidBody.points[j].y;
+				for (let i = 0, j = rigidPoly.points.length - 1; i < rigidPoly.points.length; j = i++) {
+					let xi = rigidPoly.points[i].x, yi = rigidPoly.points[i].y;
+					let xj = rigidPoly.points[j].x, yj = rigidPoly.points[j].y;
 					let intersect = ((yi > y) != (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
 					if (intersect) inside = !inside;
 				}
@@ -78,7 +87,7 @@ export abstract class RigidBody implements Component {
 
 	constructor(
 		public vector = Vector.up(),
-		public layerMask: LayerMask
+		public layerMask = LayerMask.default
 	) {
 		RigidBody._rigidBodies.push(this);
 	}
@@ -89,16 +98,17 @@ export abstract class RigidBody implements Component {
 
 	start() {}
 	update() {
+		this.vector.advance();
 		//? In every frame, check every active event of the rigidBody
 		//this.event.activeEvents.forEach(); //todo implement
 	}
 	abstract detectCollision(rBody: RigidBody): boolean;
 
-	static getByLayerMask(layerMask: LayerMask) {
+	static getByLayerMask(layerMask = LayerMask.default) {
 		return this.rigidBodies.filter(rBody => rBody.layerMask == layerMask);
 	}
 
-	static checkCollisions() {
+	static update() {
 		LayerMask.layerMasks.forEach(layerMask => {
 			const bodies = this.getByLayerMask(layerMask);
 			for (let i = 0; i < bodies.length - 1; i++) {
@@ -127,12 +137,18 @@ export abstract class RigidBody implements Component {
 }
 
 export class RigidPoly extends RigidBody {
-	points: Coord[];
 
-	constructor(vector: Vector, ...points: Coord[]) {
-		super(vector);
+	constructor(vector: Vector, public points: Coord[], layerMask = LayerMask.default) {
+		super(vector, layerMask);
 		this.points = points;
 	}
+
+	onMouseEnter: MouseCollisionEvent = () => {};
+	onMouseLeave: MouseCollisionEvent = () => {};
+	onClick: MouseCollisionEvent = () => {};
+	onCollisionEnter: CollisionEvent = () => {};
+	onCollisionLeave: CollisionEvent = () => {};
+
 	pointInside(point: Coord) {
 	}
 	detectCollision(rBody: RigidBody) {
@@ -168,12 +184,20 @@ export class RigidPoly extends RigidBody {
 	}
 }
 export class RigidCirc extends RigidBody {
-	radius: number;
 
-	constructor(vector: Vector, radius: number) {
-		super(vector);
+	get center() { return this.vector.coord }
+
+	constructor(vector: Vector, public radius: number, layerMask = LayerMask.default) {
+		super(vector, layerMask);
 		this.radius = radius;
 	}
+
+	onMouseEnter: MouseCollisionEvent = () => {};
+	onMouseLeave: MouseCollisionEvent = () => {};
+	onClick: MouseCollisionEvent = () => {};
+	onCollisionEnter: CollisionEvent = () => {};
+	onCollisionLeave: CollisionEvent = () => {};
+
 	detectCollision(rBody: RigidBody) {
 		/* if (mathF.parentClass(rBody) == 'RigidRect') {
 			console.log('Work In Progress');
@@ -205,7 +229,7 @@ export class RigidCirc extends RigidBody {
 		ctx.strokeStyle = color; */
 	}
 }
-export const rigidF = {
+const rigidF = {
 	/**
 	 * Convert from unix timestamp to time.
 	 * @param {RigirRect | RigidCirc} rBody1 The first rigidBody.

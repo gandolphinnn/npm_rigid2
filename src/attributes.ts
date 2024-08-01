@@ -17,16 +17,21 @@ export class LayerMask {
 			LayerMask._layerMasks.push(this);
 	}
 
-	private static _layerMasks: LayerMask[] = [
-		new LayerMask("Default"),
-		new LayerMask("Mouse"),
-		new LayerMask("Canvas"),
-	];
+	private static _layerMasks: LayerMask[] = [];
+	static init() {
+		LayerMask._layerMasks ??= [
+			new LayerMask("Default"),
+			new LayerMask("Mouse"),
+			new LayerMask("Canvas"),
+		];
+	}
 
-	static get layerMasks() { return Object.freeze(this._layerMasks) }
+	static get layerMasks() {
+		return Object.freeze(LayerMask._layerMasks);
+	}
 
-	static getByName(name: string) {
-		return this._layerMasks.find(l => l.name == name);
+	static getByName(name: string): LayerMask | undefined {
+		return this.layerMasks.find(l => l.name == name);
 	}
 	static get default() { return this.getByName("Default") }
 	static get mouse() { return this.getByName("Mouse") }
@@ -63,7 +68,8 @@ export class Vector {
 	 * Move the vector to its next frame position
 	 */
 	advance() {
-		this.coord = this.vectorCoord;
+		this.coord.x = this.vectorCoord.x;
+		this.coord.y = this.vectorCoord.y;
 		return this;
 	}
 	/**
