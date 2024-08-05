@@ -10,7 +10,9 @@
 	"scripts": {
 		"live": "concurrently \"tsc --watch\" \"parcel index.html --open\"",
 		"clean": "rmdir \".parcel-cache\" && del /Q /f \"dist\" && tsc && del /Q /f \"dist\\test*\"",
-		"publish": "npm run clean && npm publish"
+		"publish": "npm run clean && npm publish",
+		"nvm22": "nvm use 22.1.0",
+		"nvm14": "nvm use 14.21.3"
 	},
 	"repository": {
 		"type": "git",

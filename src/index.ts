@@ -138,9 +138,19 @@ export abstract class RigidBody implements Component {
 
 export class RigidPoly extends RigidBody {
 
-	constructor(vector: Vector, public points: Coord[], layerMask = LayerMask.default) {
+	lines: RigidLine[] = [];
+
+	get points() { return this.lines.map(line => line.points[0]) }
+
+	constructor(vector: Vector, points: Coord[], layerMask = LayerMask.default) {
 		super(vector, layerMask);
-		this.points = points;
+
+		if(points.length < 3) throw new Error('A polygon must have at least 3 points');
+		
+		for (let i = 1; i < points.length; i++) {
+			this.lines.push(new RigidLine([points[i-1], points[i]]));
+		}
+		this.lines.push(new RigidLine([points.last(), points[0]]))
 	}
 
 	onMouseEnter: MouseCollisionEvent = () => {};
